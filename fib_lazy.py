@@ -31,6 +31,7 @@ class FibHeapLazy:
     def __init__(self):
         self.roots = []
         self.min = None
+        self.n = 0
         self.lazy_deleted_nodes = set()  # Track lazy-deleted nodes
 
     def get_roots(self) -> list:
@@ -39,6 +40,8 @@ class FibHeapLazy:
     def insert(self, val: int) -> FibNodeLazy:
         new_node = FibNodeLazy(val)
         self.roots.append(new_node)
+        self.n += 1
+        
         if self.min is None or new_node.val < self.min.val:
             self.min = new_node
         return new_node
@@ -75,8 +78,7 @@ class FibHeapLazy:
         return self.min
 
     def consolidate(self):
-        max_degree = int(math.log(len(self.roots), (1 + math.sqrt(5)) / 2)) + 1
-        aux = [None] * (max_degree + 1)
+        aux = [None] * int(math.log(self.n) * 2)
 
         for root in self.roots[:]:  
             x = root
