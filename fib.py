@@ -9,6 +9,7 @@ class FibNode:
         self.children = []
         self.flag = False
         self.degree = 0
+        
 
     def get_value_in_node(self):
         return self.val
@@ -27,6 +28,7 @@ class FibHeap:
         # you may define any additional member variables you need
         self.roots = []
         self.min = None
+        self.n = 0
         pass
 
     def get_roots(self) -> list:
@@ -35,6 +37,7 @@ class FibHeap:
     def insert(self, val: int) -> FibNode:
         new_node = FibNode(val)
         self.roots.append(new_node)
+        self.n += 1
 
         if self.min is None or new_node.val < self.min.val:
             self.min = new_node
@@ -58,9 +61,7 @@ class FibHeap:
                 self.consolidate()
 
     def consolidate(self):
-        estimated_size = len(self.roots) * 2
-        max_degree = int(math.log(estimated_size, 2)) + 1
-        aux = [None] * (max_degree + 1)
+        aux = [None] * ((self.n * 2) + 1)
 
         for root in self.roots[:]:  
             x = root
