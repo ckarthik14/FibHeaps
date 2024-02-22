@@ -1,5 +1,6 @@
 # explanations for member functions are provided in requirements.py
 from __future__ import annotations
+import math
 
 class FibNode:
     def __init__(self, val: int):
@@ -35,7 +36,6 @@ class FibHeap:
         new_node = FibNode(val)
         self.roots.append(new_node)
 
-        # Update the minimum node if necessary
         if self.min is None or new_node.val < self.min.val:
             self.min = new_node
         
@@ -45,12 +45,10 @@ class FibHeap:
             if self.min is None:
                 return
 
-            # Add children of the min node to the roots list and clear their parent reference
             for child in self.min.children:
                 self.roots.append(child)
                 child.parent = None
 
-            # Remove the min node from the roots list
             self.roots.remove(self.min)
 
             if not self.roots:
@@ -60,22 +58,22 @@ class FibHeap:
                 self.consolidate()
 
     def consolidate(self):
-        # Auxiliary array to keep track of degrees
-        aux = [None] * len(self.roots)
+        estimated_size = len(self.roots) * 2
+        max_degree = int(math.log(estimated_size, 2)) + 1
+        aux = [None] * (max_degree + 1)
 
-        for root in self.roots[:]:  # Iterate over a copy since the roots list will be modified
+        for root in self.roots[:]:  
             x = root
             d = x.degree
             while aux[d] is not None:
                 y = aux[d]
                 if x.val > y.val:
-                    x, y = y, x  # Ensure that x has the smaller value
+                    x, y = y, x  
                 self.link(y, x)
                 aux[d] = None
                 d += 1
             aux[d] = x
 
-        # Rebuild the roots list and find the new minimum
         self.roots = []
         self.min = None
         for node in aux:
@@ -85,7 +83,6 @@ class FibHeap:
                     self.min = node
 
     def link(self, y: FibNode, x: FibNode) -> None:
-        # Remove y from the roots list and make it a child of x
         self.roots.remove(y)
         x.children.append(y)
         y.parent = x
