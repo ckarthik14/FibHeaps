@@ -87,6 +87,7 @@ class FibHeap:
         x.children.append(y)
         y.parent = x
         x.degree += 1
+        y.flag = False
 
     def find_min(self) -> FibNode:
         return self.min
