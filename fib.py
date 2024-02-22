@@ -61,7 +61,7 @@ class FibHeap:
                 self.consolidate()
 
     def consolidate(self):
-        aux = [None] * ((self.n * 2) + 1)
+        aux = [None] * int(math.log(self.n) * 2)
 
         for root in self.roots[:]:  
             x = root
