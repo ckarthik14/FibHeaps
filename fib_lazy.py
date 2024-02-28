@@ -42,6 +42,9 @@ class FibHeapLazy:
         self.roots.append(new_node)
         self.n += 1
         
+        if self.min is None and len(self.roots) > 1:
+            self.find_min_lazy()
+
         if self.min is None or new_node.val < self.min.val:
             self.min = new_node
         return new_node
@@ -103,6 +106,9 @@ class FibHeapLazy:
         
         node.val = new_val
         parent = node.parent
+
+        if self.min is None and len(self.roots) > 1:
+            self.find_min_lazy()
         
         if parent and node.val < parent.val:
             self.cut(node, parent)
