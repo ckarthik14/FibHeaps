@@ -50,6 +50,9 @@ class FibHeapLazy:
         return new_node
         
     def delete_min_lazy(self) -> None:
+        if self.min is None and len(self.roots) > 1:
+            self.find_min_lazy()
+
         if self.min is None:
             return
         
