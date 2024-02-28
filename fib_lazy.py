@@ -32,7 +32,7 @@ class FibHeapLazy:
         self.roots = []
         self.min = None
         self.n = 0
-        self.lazy_deleted_nodes = set()  # Track lazy-deleted nodes
+        self.dirty = False
 
     def get_roots(self) -> list:
         return self.roots
@@ -42,44 +42,30 @@ class FibHeapLazy:
         self.roots.append(new_node)
         self.n += 1
         
-        if self.min is None and len(self.roots) > 1:
-            self.find_min_lazy()
+        self.consolidate_if_dirty()
 
         if self.min is None or new_node.val < self.min.val:
             self.min = new_node
         return new_node
         
     def delete_min_lazy(self) -> None:
-        if self.min is None and len(self.roots) > 1:
-            self.find_min_lazy()
-
         if self.min is None:
             return
-        
-        # marking as lazy-deleted
-        self.lazy_deleted_nodes.add(self.min.id)
 
-        # resetting the minimum node to None
-        self.min = None
+        for child in self.min.children:
+            self.roots.append(child)
+            child.parent = None
+
+        self.roots.remove(self.min)
+
+        if not self.roots:
+            self.min = None
+        else:
+            self.min = self.roots[0]
+            self.dirty = True
 
     def find_min_lazy(self) -> FibNodeLazy:
-       
-        if self.min and self.min.id not in self.lazy_deleted_nodes:
-            return self.min
-
-        # removing nodes marked for lazy deletion
-        self.roots = [node for node in self.roots if node.id not in self.lazy_deleted_nodes]
-        self.lazy_deleted_nodes.clear()  
-
-        # reset the minimum from the remaining roots
-        self.min = None
-        for node in self.roots:
-            if self.min is None or node.val < self.min.val:
-                self.min = node
-
-        # consolidate
-        if self.roots:
-            self.consolidate()
+        self.consolidate_if_dirty()
 
         return self.min
 
@@ -110,8 +96,7 @@ class FibHeapLazy:
         node.val = new_val
         parent = node.parent
 
-        if self.min is None and len(self.roots) > 1:
-            self.find_min_lazy()
+        self.consolidate_if_dirty()
         
         if parent and node.val < parent.val:
             self.cut(node, parent)
@@ -119,6 +104,11 @@ class FibHeapLazy:
         
         if self.min is None or node.val < self.min.val:
             self.min = node
+
+    def consolidate_if_dirty(self) -> None:
+        if self.dirty:
+            self.consolidate()
+            self.dirty = False
 
     def cut(self, node: FibNodeLazy, parent: FibNodeLazy) -> None:
         parent.children.remove(node)
